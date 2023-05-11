@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>貓咪</title>
+	<meta name="description" content="Cat">
+	<meta property="og:title" content="貓咪">
+	<meta property="og:description" content="Cat">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;900&display=swap" rel="stylesheet">
+	<style>
+		html { 
+			overflow: hidden;
+		}
+
+		body {
+			margin: 0px;
+			user-select: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="loading" style="background: white; position: fixed; width: 100%; height: 100%; transition-duration: 0.5s; z-index: 3;">
+		<div id="progress" style="position: fixed; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; transition-duration: 0.5s;">
+			<div style="margin: 20px; color: #999999; font: 24px Noto Sans TC;">Loading...</div>
+			<div style="width: 30%; height: 3px; background: #dddddd;">
+				<div style="width: 0%; height: 100%; background: #999999; transition-duration: 1s"></div>
+			</div>
+		</div>
+	</div>
+	<script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
+	<script src="https://unpkg.com/three@0.143.0/examples/js/loaders/GLTFLoader.js"></script>
+	<script src="index.js"></script>
+</body>
+</html>
