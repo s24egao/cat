@@ -7,6 +7,7 @@
 	<meta property="og:title" content="貓咪">
 	<meta property="og:description" content="Cat">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="icon" type="image" href="icon.png">
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;900&display=swap" rel="stylesheet">
@@ -17,7 +18,19 @@
 
 		body {
 			margin: 0px;
+			-webkit-user-select: none;
 			user-select: none;
+			touch-action: none;
+		}
+
+		#logo div {
+			transition-duration: 0.3s;
+			background: #555555;
+		}
+
+		#logo:hover div {
+			opacity: 0;
+			transform: translate(-100%);
 		}
 	</style>
 </head>
@@ -30,6 +43,20 @@
 			</div>
 		</div>
 	</div>
+	<canvas id="gui" style="position: fixed; width: 100%; height: 100%; pointer-events: none; z-index: 2;"></canvas>
+	<a id="logo" style="width: 80px; height:80px; position: fixed; margin: 20px; right: 0px; bottom: 0px;" href="https://s24egao.github.io" target="_blank">
+		<div style="position: absolute; width: 45%; height: 9%; top: 36%; left: 0%;"></div>
+		<div style="position: absolute; width: 9%; height: 45%; top: 27%; left: 18%;"></div>
+		<div style="position: absolute; width: 9%; height: 45%; top: 27%; left: 18%;"></div>
+		<div style="position: absolute; width: 9%; height: 18%; top: 54%; left: 0%;"></div>
+		<div style="position: absolute; width: 9%; height: 18%; top: 54%; left: 36%;"></div>
+		<div style="position: absolute; width: 9%; height: 9%; top: 27%; left: 63%;"></div>
+		<div style="position: absolute; width: 45%; height: 9%; top: 36%; left: 54%;"></div>
+		<div style="position: absolute; width: 9%; height: 36%; top: 36%; left: 54%;"></div>
+		<div style="position: absolute; width: 9%; height: 36%; top: 36%; left: 90%;"></div>
+		<div style="position: absolute; width: 18%; height: 9%; top: 54%; left: 63%;"></div>
+		<div style="position: absolute; width: 45%; height: 9%; top: 63%; left: 54%;"></div>
+	</a>
 	<script src="https://unpkg.com/three@0.143.0/build/three.min.js"></script>
 	<script src="https://unpkg.com/three@0.143.0/examples/js/loaders/GLTFLoader.js"></script>
 	<script src="index.js"></script>
