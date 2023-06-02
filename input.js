@@ -1,38 +1,82 @@
-let moveStatus = { turnLeft: false, turnRight: false, walk: false, speed: 0, animation: false }
+class Input {
+    walk = false
+    turnLeft = false
+    turnRight = false
+    mousePressed = false
+    firstX = 0
+    firstY = 0
+    x = 0
+    y = 0
+    dir = 0
 
-addEventListener('keydown', e => {
-	if(e.repeat) return
-	if(e.code == 'ArrowLeft' || e.code == 'KeyA') moveStatus.turnLeft = true
-	if(e.code == 'ArrowRight' || e.code == 'KeyD') moveStatus.turnRight = true
-	if(e.code == 'ArrowUp' || e.code == 'KeyW') moveStatus.walk = true
-})
+    constructor(domElement) {
+        this.guiCanvas = document.createElement('canvas')
+        this.guiCanvas.setAttribute('id', 'gui')
+        this.guiCanvas.setAttribute('style', `position: fixed; width: 100%; height: 100%; top: 0px; left: 0px; pointer-events: none; z-index: 2;`)
+        document.body.append(this.guiCanvas)
+        this.gui = this.guiCanvas.getContext('2d')
+        this.guiCanvas.width = innerWidth * devicePixelRatio
+        this.guiCanvas.height = innerHeight * devicePixelRatio
+        this.gui.scale(devicePixelRatio, devicePixelRatio)
+        this.gui.lineWidth = 3
 
-addEventListener('keyup', e => {
-	if(e.code == 'ArrowLeft' || e.code == 'KeyA') moveStatus.turnLeft = false
-	if(e.code == 'ArrowRight' || e.code == 'KeyD') moveStatus.turnRight = false
-	if(e.code == 'ArrowUp' || e.code == 'KeyW') moveStatus.walk = false
-})
+        addEventListener('resize' , () => {
+            this.guiCanvas.width = innerWidth * devicePixelRatio
+            this.guiCanvas.height = innerHeight * devicePixelRatio
+            this.gui.scale(devicePixelRatio, devicePixelRatio)
+            this.gui.lineWidth = 3
+        })
 
-let mouse = { pressed: false, firstX: 0, firstY: 0, x: 0, y: 0 }
-let guiCanvas = document.querySelector('#gui')
-let gui = guiCanvas.getContext('2d')
+        addEventListener('keydown', e => {
+            if(e.repeat) return
+            if(e.code == 'ArrowLeft' || e.code == 'KeyA') this.turnLeft = true
+            if(e.code == 'ArrowRight' || e.code == 'KeyD') this.turnRight = true
+            if(e.code == 'ArrowUp' || e.code == 'KeyW') this.walk = true
+        })
 
-for(let event of ['touchstart', 'mousedown']) addEventListener(event, e => {
-	mouse.pressed = true
-	moveStatus.walk = true
-	mouse.firstX = (e.type.startsWith('touch'))? e.touches[0].clientX : e.clientX
-	mouse.firstY = (e.type.startsWith('touch'))? e.touches[0].clientY : e.clientY
-})
+        addEventListener('keyup', e => {
+            if(e.code == 'ArrowLeft' || e.code == 'KeyA') this.turnLeft = false
+            if(e.code == 'ArrowRight' || e.code == 'KeyD') this.turnRight = false
+            if(e.code == 'ArrowUp' || e.code == 'KeyW') this.walk = false
+        })
 
-for(let event of ['touchmove', 'mousemove']) addEventListener(event, e => {
-	if(!mouse.pressed) return
-	mouse.x = (e.type.startsWith('touch'))? e.touches[0].clientX : e.clientX
-	mouse.y = (e.type.startsWith('touch'))? e.touches[0].clientY : e.clientY
-})
+        for(let event of ['touchstart', 'mousedown']) domElement.addEventListener(event, e => {
+            this.mousePressed = true
+            this.walk = true
+            this.firstX = (e.type.startsWith('touch'))? e.touches[0].clientX : e.clientX
+            this.firstY = (e.type.startsWith('touch'))? e.touches[0].clientY : e.clientY
+            this.x = this.firstX
+            this.y = this.firstY
+        })
 
-for(let event of ['touchend', 'mouseup']) addEventListener(event, e => {
-	mouse.pressed = false
-	moveStatus.walk = false
-	moveStatus.turnLeft = false
-	moveStatus.turnRight = false
-})
+        for(let event of ['touchmove', 'mousemove']) addEventListener(event, e => {
+            if(!this.mousePressed) return
+            this.x = (e.type.startsWith('touch'))? e.touches[0].clientX : e.clientX
+            this.y = (e.type.startsWith('touch'))? e.touches[0].clientY : e.clientY
+            this.dir = Math.atan2(-(this.y - this.firstY), this.x - this.firstX)
+        })
+
+        for(let event of ['touchend', 'mouseup']) addEventListener(event, e => {
+            this.mousePressed = false
+            this.walk = false
+            this.turnLeft = false
+            this.turnRight = false
+        })
+    }
+
+    drawUI() {
+        this.gui.clearRect(0, 0, this.guiCanvas.width, this.guiCanvas.height)
+        if(this.mousePressed) {
+            this.gui.beginPath()
+            this.gui.strokeStyle = `rgba(255, 255, 255, 0.3)`
+            this.gui.arc(this.firstX, this.firstY, 50, 0, 6.28318)
+            this.gui.stroke()
+            this.gui.beginPath()
+            this.gui.fillStyle = `rgba(255, 255, 255, 0.8)`
+            let dir = Math.atan2(this.y - this.firstY, this.x - this.firstX)
+            let dist = Math.min(Math.sqrt(Math.pow(this.firstX - this.x, 2) + Math.pow(this.firstY - this.y, 2)), 50)
+            this.gui.arc(this.firstX + Math.cos(dir) * dist, this.firstY + Math.sin(dir) * dist, 25, 0, 6.28318)
+            this.gui.fill()
+        }
+    }
+}
