@@ -75,7 +75,7 @@ function catMove(d) {
 	cat.position.add(new THREE.Vector3(Math.sin(cat.rotation.y), 0, Math.cos(cat.rotation.y)).multiplyScalar(9 * speed * Math.min(d, 1)))
 }
 
-let particles = new ParticleSystem(10000, new THREE.SphereGeometry(1, 8, 8), new THREE.MeshBasicMaterial({ color: 0xdddddd }), 100, 
+let particles = new ParticleSystem(1000, new THREE.SphereGeometry(1, 8, 8), new THREE.MeshBasicMaterial({ color: 0xdddddd }), 100, 
 particle => {
 	particle.position.randomDirection().multiplyScalar(30).add(cat.position).y = Math.random() * 5
 	particle.time = 0
