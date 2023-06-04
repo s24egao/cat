@@ -1,34 +1,62 @@
 import * as THREE from 'three'
 
-export class ParticleSystem {
-	updated = false
+export default class ParticleSystem {
+	needsUpdate = false
 	capacity = 1000
+	spawnRate = 0
 	array = []
+	time = 0
 
-	constructor(scene, geometry, material, capacity, updateParticle) {
+	constructor(capacity, geometry, material, spawnRate, spawnFunction, updateFunction) {
 		this.capacity = capacity
 		this.mesh = new THREE.InstancedMesh(geometry, material, capacity)
-        this.updateParticle = updateParticle
-		scene.add(this.mesh)
+		this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
+		this.mesh.frustumCulled = false
+		this.spawnRate = spawnRate
+		this.spawnFunction = spawnFunction
+        this.updateFunction = updateFunction
 	}
 
-	add(p) {
-		if(this.array.length >= this.capacity) return
-		this.array.push(p)
-		this.updated = true
+	spawn(amount) {
+		for(let i = 0; i < amount && this.array.length < this.capacity; i++) {
+			let newParticle = {
+				position: new THREE.Vector3(),
+				rotation: new THREE.Euler(),
+				scale: new THREE.Vector3(1, 1, 1)
+			}
+			this.spawnFunction(newParticle, this.array.length)
+			this.array.push(newParticle)
+		}
+		this.needsUpdate = true
 	}
 
 	update(delta) {
-		if(!this.updated && !this.updateParticle) return
-        this.array = this.array.filter(p =>  !p.remove)
-		for(let [i, p] of this.array.entries()) {
-            if(this.updateParticle) this.updateParticle(p, delta)
+		delta = Math.min(delta, 1)
+		if(this.spawnRate > 0) {
+			this.time += delta
+			while(this.array.length < this.capacity && this.time > 1 / this.spawnRate && this.spawnFunction) {
+				this.time -= 1 / this.spawnRate
+				let newParticle = {
+					position: new THREE.Vector3(),
+					rotation: new THREE.Euler(),
+					scale: new THREE.Vector3(1, 1, 1)
+				}
+				this.spawnFunction(newParticle, this.array.length)
+				this.array.push(newParticle)
+				this.needsUpdate = true
+			}
+		}
+		if(!this.needsUpdate && !this.updateFunction) return
+        this.array = this.array.filter(p => !p.remove)
+		for(let [i, particle] of this.array.entries()) {
+            if(this.updateFunction) this.updateFunction(particle, delta)
             let matrix = new THREE.Matrix4()
             let quaternion = new THREE.Quaternion()
-            quaternion.setFromEuler(p.rotation)
-			this.mesh.setMatrixAt(i, matrix.compose(p.position, quaternion, p.scale))
+            quaternion.setFromEuler(particle.rotation)
+			this.mesh.setMatrixAt(i, matrix.compose(particle.position, quaternion, particle.scale))
 		}
 		this.mesh.count = Math.min(this.array.length, this.capacity)
         this.mesh.instanceMatrix.needsUpdate = true
+		this.needsUpdate = false
 	}
 }

@@ -41,6 +41,7 @@ class Input {
         })
 
         for(let event of ['touchstart', 'mousedown']) domElement.addEventListener(event, e => {
+            if(event.startsWith('mouse') && e.button != 0) return
             this.mousePressed = true
             this.walk = true
             this.firstX = (e.type.startsWith('touch'))? e.touches[0].clientX : e.clientX

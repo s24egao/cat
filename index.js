@@ -1,6 +1,6 @@
 import * as THREE from 'three'
+import ParticleSystem from './particle.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-import { ParticleSystem } from './particle.js'
 
 const loadingManager = new THREE.LoadingManager()
 loadingManager.onProgress = (url, loaded, total) => {
@@ -71,19 +71,35 @@ function catMove(d) {
 		walk.fadeOut(0.5)
 		idle.fadeIn(0.5)
 	}
-	speed += ((input.walk? 1 : 0) - speed) * 5 * d
-	cat.position.add(new THREE.Vector3(Math.sin(cat.rotation.y), 0, Math.cos(cat.rotation.y)).multiplyScalar(9 * speed * d))
+	speed = Math.max(Math.min(speed + ((input.walk? 1 : 0) - speed) * 5 * d, 1), 0)
+	cat.position.add(new THREE.Vector3(Math.sin(cat.rotation.y), 0, Math.cos(cat.rotation.y)).multiplyScalar(9 * speed * Math.min(d, 1)))
 }
 
-let particles = new ParticleSystem(scene, new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x222222 }), 5000)
+let particles = new ParticleSystem(10000, new THREE.SphereGeometry(1, 8, 8), new THREE.MeshBasicMaterial({ color: 0xdddddd }), 100, 
+particle => {
+	particle.position.randomDirection().multiplyScalar(30).add(cat.position).y = Math.random() * 5
+	particle.time = 0
+	particle.velocity = new THREE.Vector3().randomDirection()
+},
+(particle, delta) => {
+	particle.time += delta
+	particle.position.addScaledVector(particle.velocity, delta)
+	let s = Math.min(particle.time, 1) * Math.min(3 - particle.time, 1)
+	particle.scale.set(s * 0.1, s * 0.1, s * 0.1)
+	if(particle.time > 3) particle.remove = true
+})
+scene.add(particles.mesh)
 
-for(let i = 0; i < 2048; i++) {
-	particles.add({
-		position: new THREE.Vector3(Math.random() * 100 - 50, 0, Math.random() * 100 - 50),
-		rotation: new THREE.Euler(0, 0, 0),
-		scale: new THREE.Vector3(0.1, 2, 0.1)
-	})
-}
+let particles2 = new ParticleSystem(5000, new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x222222 }), 5000, 
+particle => {
+	particle.position.randomDirection().multiplyScalar(50).add(cat.position).y = 1
+	particle.scale.set(0.1, 2, 0.1)
+	particle.scale.multiplyScalar(Math.random() * 0.5 + 0.1)
+},
+particle => {
+	if(particle.position.distanceTo(cat.position) > 50) particle.remove = true
+})
+scene.add(particles2.mesh)
 
 let box1 = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: 0x222222 }))
 box1.position.set(5, 1, 0)
@@ -93,21 +109,21 @@ let box2 = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMat
 box2.position.set(-3, 1, 3)
 scene.add(box2)
 
-let objectTracker = new ObjectTracker(camera, 0.5)
+let objectTracker = new ObjectTracker(camera, 0.6)
 objectTracker.add(document.querySelector('#card-1'), box1, 0, -100)
 objectTracker.add(document.querySelector('#card-2'), box2, 0, -100)
 
 function animate() {
 	requestAnimationFrame(animate)
-
+	input.drawUI()
 	let d = clock.getDelta()
 	catMove(d)
 	mixer.update(d)
-	input.drawUI()
 	particles.update(d)
-	camera.position.lerp(new THREE.Vector3(cat.position.x + 25, cat.position.y + 15, cat.position.z + 25), 0.1)
+	particles2.update(d)
+	camera.position.lerp(new THREE.Vector3(cat.position.x + 25, cat.position.y + 15, cat.position.z + 25), Math.min(d, 1) * 3)
 	objectTracker.update()
-
+	
 	renderer.render(scene, camera)
 }
 
