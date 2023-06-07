@@ -28,7 +28,7 @@ const scene = new THREE.Scene()
 scene.fog = new THREE.Fog(0xdddddd, 10, 90)
 scene.background = new THREE.Color(0xdddddd)
 
-const plane = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), new THREE.MeshBasicMaterial({ color: 0x222222 }))
+const plane = new THREE.Mesh(new THREE.PlaneGeometry(1000, 1000), new THREE.MeshBasicMaterial({ color: 0x222222 }))
 plane.rotation.set(-Math.PI / 2, 0, 0)
 scene.add(plane)
 
@@ -92,9 +92,10 @@ scene.add(particles.mesh)
 
 let particles2 = new ParticleSystem(5000, new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x222222 }), 5000, 
 particle => {
-	particle.position.randomDirection().multiplyScalar(50).add(cat.position).y = 1
+	particle.position.randomDirection().multiplyScalar(80).add(cat.position).y = 1
 	particle.scale.set(0.1, 2, 0.1)
 	particle.scale.multiplyScalar(Math.random() * 0.5 + 0.1)
+	particle.time = 0
 },
 particle => {
 	if(particle.position.distanceTo(cat.position) > 50) particle.remove = true
@@ -106,7 +107,7 @@ box1.position.set(5, 1, 0)
 scene.add(box1)
 
 let box2 = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshBasicMaterial({ color: 0x222222 }))
-box2.position.set(-3, 1, 3)
+box2.position.set(-5, 1, 0)
 scene.add(box2)
 
 let objectTracker = new ObjectTracker(camera, 0.6)
